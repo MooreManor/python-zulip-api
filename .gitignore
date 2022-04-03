@@ -44,6 +44,7 @@ zuliprc
 .zuliprc
 botserverrc
 .botserverrc
+zuliprcs/*
 
 # vim
 .swp
@@ -57,3 +58,4 @@ botserverrc
 # Pycharm
 \.DS_Store
 \.idea/
+

@@ -7,7 +7,8 @@ from zulip_bots.lib import BotHandler
 
 class HelloWorldHandler:
     def usage(self) -> str:
-        return """
+        return "in hello" 
+        """
         This is a boilerplate bot that responds to a user query with
         "beep boop", which is robot for "Hello World".
 
