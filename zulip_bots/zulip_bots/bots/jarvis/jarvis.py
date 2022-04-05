@@ -30,6 +30,13 @@ class GearHandler:
                 content = data.get_help(self.name)
                 return content
 
+            if "http" in instruction or "com" in instruction or "www" in instruction:
+                assert len(commands)==1
+                try:
+                    return data.get_paper(commands[0])
+                except:
+                    return "URL must from arxiv or PapersWithCode or iccv or cvpr, "\
+                    "or something wrong happeded during the crawl" 
             # instruction params >=1
             try:
                 if instruction == "paper":
@@ -37,7 +44,7 @@ class GearHandler:
                     try:
                         return data.get_paper(commands[1])
                     except:
-                        return "URL must from arxiv or PapersWithCode, "\
+                        return "URL must from arxiv or PapersWithCode or iccv or cvpr, "\
                       "or something wrong happeded during the crawl" 
             except:
                 return "Invalid Nums of Params for paper."

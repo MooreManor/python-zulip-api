@@ -11,13 +11,14 @@ def get_help(name):
     # |  aa  |  bb  |  cc  |
     commands_help = [
         "help",
-        "paper <url>",
+        # "paper <url>",
+        "<url>",
     ]
 
     max_len = 20
     params_help= [
         "**None**",
-        "**<url>:** Paper url from arxiv, paperswithcode"
+        "**<url>:** Paper homepage url from arxiv, paperswithcode, iccv, cvpr"
     ]
     # self.params_help  =[
     #     self.sep_table(i, max_len) 
@@ -26,7 +27,7 @@ def get_help(name):
 
     descriptions_help = [
         f"Display {name} usage",
-        "Get the paper archives from arxiv, paperswithcode",
+        "Get paper info",
     ]
     for command, param, description in zip(commands_help, params_help, descriptions_help):
         content += f"| **{command}** | {param} | {description}\n"
@@ -37,6 +38,8 @@ def get_paper(url):
         title, authors, comment, pdf, url, code, paperswithcode = analyze_arxiv(url)
     elif "paperswithcode" in url:
         title, authors, comment, pdf, url, code, paperswithcode = analyze_paperswithcode(url)
+    elif "iccv" or "cvpr" in url:
+        title, authors, comment, pdf, url, code, paperswithcode = analyze_cv(url)
         
     res = "**" + title + "**" + " " + authors + " " + comment + " " + "([PDF](" + pdf + "))" + " " + \
         "([Abstract](" + url + "))" + paperswithcode + code

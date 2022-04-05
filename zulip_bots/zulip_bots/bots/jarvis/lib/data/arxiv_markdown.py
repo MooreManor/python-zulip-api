@@ -49,15 +49,19 @@ def analyze_arxiv(url):
     paperswithcode = " ([PWC](" + paperswithcode + "))"
 
     # comment = re.search(r"CVPR.....", str(table))
-    comment = re.search(r"CVPR|ICCV|SIGGRAPH|ECCV|ACM-MM|AAAI", str(table))
-    year = re.search(r">.*?<", str(table))
-    year = re.search(r"\d{4}", year.group())
+    # comment = re.search(r"CVPR|ICCV|SIGGRAPH|ECCV|ACM-MM|AAAI", str(table))
+    comment = re.search(r"[^> ]* \d{4}", str(table))
+
     if comment != None:
         comment = comment.group()
-        comment = "**" + comment + ', ' + year.group() + "**"
+        comment = "**" + comment + "**"
         # print(comment)
     else:
-        comment=''
+        year = page.find('div', class_='dateline')
+        year = str(year).replace("\n", "")
+        year = re.search(r">.*?<", str(year))
+        year = year.group()[1:-1].lstrip().rstrip()[14:-1]
+        comment = "**" + year + "**"
 
     # author = page.find(class_="authors")
     authors = ""
@@ -74,7 +78,7 @@ def analyze_arxiv(url):
 
     authors = authors[:-2]
     if(num_authors > 2):
-        authors = authors + " et al."
+        authors = authors + " et. al."
     else:
         authors = authors + "."
     # print(num_authors)
@@ -128,14 +132,16 @@ def analyze_paperswithcode(url):
         # print(str(pub).replace(' ', ''))
         # print(re.search(r">.*?<", str(pub).replace(' ', '').replace('\n', '')).group())
         # pub = re.search(r">.*?<", str(pub)).group()[1:-1]
-        pub = re.search(r">.*?<", str(pub).replace(' ', '').replace('\n', '')).group()[1:-1]
+        # pub = re.search(r">.*?<", str(pub).replace(' ', '').replace('\n', '')).group()[1:-1]
+        pub = re.search(r">.*?<", str(pub).replace('\n', '')).group()
         # print(pub)
         # print(re.search(r"CVPR|ICCV|SIGGRAPH|ECCV|ACM-MM|AAAI", pub))
-        comment = re.search(r"CVPR|ICCV|SIGGRAPH|ECCV|ACM-MM|AAAI", pub)
+        # comment = re.search(r"CVPR|ICCV|SIGGRAPH|ECCV|ACM-MM|AAAI", pub)
+        comment = re.search(r"[^> ]* \d{4}", pub)
         # print(comment)
-        year = re.search(r"\d{4}", pub)
+        # year = re.search(r"\d{4}", pub)
         if comment!=None:
-            comment = "**" + comment.group() + ', ' + year.group() + "**"
+            comment = "**" + comment.group() + "**"
         else:
             comment = ""
     except:
@@ -159,12 +165,23 @@ def analyze_paperswithcode(url):
             authors = authors + ii[0].string + ', '
     authors = authors[:-2]
     if (num_authors > 2):
-        authors = authors + " et al."
+        authors = authors + " et. al."
     else:
         authors = authors + "."
 
     return title, authors, comment, pdf, url, code, paperswithcode
 # print(pdf)
+
+def analyze_cv(url):
+    resp = requests.get(url)
+    page = BeautifulSoup(resp.text, "html.parser")
+    for ss0 in page.find_all('a'):
+        if "arxiv" in str(ss0):
+            title, authors, comment, pdf, url, code, paperswithcode = analyze_arxiv((ss0['href']))
+            return title, authors, comment, pdf, url, code, paperswithcode
+
+
+
 
 def get_newest_pdf(path):
     list_pdf = []
@@ -188,9 +205,12 @@ def get_specify_pdf(path, pdf_name):
     raise FileNotFoundError
 
 if __name__ == '__main__':
-    url = "https://arxiv.org/abs/2105.02465"
+    # url = "https://arxiv.org/abs/2105.02465"
+    # url = "https://arxiv.org/abs/2109.03462"
+
     path = 'D:/阅读论文'
-    # url = "https://paperswithcode.com/paper/multi-scale-networks-for-3d-human"
+    url = "https://paperswithcode.com/paper/multi-scale-networks-for-3d-human"
+    # url = "https://paperswithcode.com/paper/poseaug-a-differentiable-pose-augmentation"
     # if (len(sys.argv) == 2):
     #     url = sys.argv[1]
 
@@ -218,6 +238,8 @@ if __name__ == '__main__':
         title, authors, comment, pdf, url, code, paperswithcode = analyze_arxiv(url)
     elif "paperswithcode" in url:
         title, authors, comment, pdf, url, code, paperswithcode = analyze_paperswithcode(url)
+    elif "iccv" or "cvpr" in url:
+        title, authors, comment, pdf, url, code, paperswithcode = analyze_cv(url)
 
     res = "<mark>" + "**" + title + "**" + " " + authors + " " + comment + " " + "([PDF](" + pdf + "))" + " " + \
           "([Abstract](" + url + "))" + paperswithcode + code + pdf_path + "</mark>" + "\n<details>\n" + \
