@@ -78,7 +78,7 @@ def analyze_arxiv(url):
 
     authors = authors[:-2]
     if(num_authors > 2):
-        authors = authors + " et. al."
+        authors = authors + " et al."
     else:
         authors = authors + "."
     # print(num_authors)
@@ -165,7 +165,7 @@ def analyze_paperswithcode(url):
             authors = authors + ii[0].string + ', '
     authors = authors[:-2]
     if (num_authors > 2):
-        authors = authors + " et. al."
+        authors = authors + " et al."
     else:
         authors = authors + "."
 

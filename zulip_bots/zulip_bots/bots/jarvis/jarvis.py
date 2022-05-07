@@ -8,7 +8,7 @@ import lib.data as data
 import lib.utils as utils
 
 
-class GearHandler:
+class JarvisHandler:
     def usage(self) -> str:
         return
         "Jarvis Robot"
@@ -23,6 +23,9 @@ class GearHandler:
 
     #-----------------------------Generate response----------------------------- 
     def generate_response(self, commands) -> str:
+        instruction = commands[0]
+        # if instruction == "server":
+        #     return data.get_cpolar(sender_email=self.message['sender_email'], server_id=commands[1])
         try:
             instruction = commands[0]
             # only instruction
@@ -48,6 +51,22 @@ class GearHandler:
                       "or something wrong happeded during the crawl" 
             except:
                 return "Invalid Nums of Params for paper."
+            # cpolar
+            try:
+                if instruction == "server":
+                    assert len(commands)==2
+                    try:
+                        cmd_out_prompt = "Without ECNU VPN. Please use:\n"
+                        cmd_vpn_prompt = "With ECNU VPN. Please use:\n"
+                        cmd_out, cmd_vpn = data.get_cpolar(sender_email=self.message['sender_email'], server_id=commands[1])
+                        return cmd_out_prompt + f"`{cmd_out}`\n\n" + cmd_vpn_prompt + f"`{cmd_vpn}`\n"
+                    except:
+                        return "server_id currently is 0, 1. \
+                        Please choose right server_id or something wrong happened." 
+            except:
+                return "Invalid Nums of Params for server."
+                
+
         except:
             return  self.Invalid_Command_ERROR_MESSAGE
 
@@ -61,6 +80,7 @@ class GearHandler:
         # self.bot_handler = bot_handler
         self.message = message
         # print(message["content"])
+        # print(message)
         try:
             commands = utils.sep_cont(self.message["content"])
         except:
@@ -74,4 +94,4 @@ class GearHandler:
         return
 
 
-handler_class = GearHandler
+handler_class = JarvisHandler

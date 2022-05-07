@@ -59,3 +59,5 @@ zuliprcs/*
 \.DS_Store
 \.idea/
 
+#init file
+*.ini
