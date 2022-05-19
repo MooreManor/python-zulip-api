@@ -52,7 +52,7 @@ headers_tcp = {
     'upgrade-insecure-requests':'1',
     'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
 }
-headers_login = {
+headers_login_agent = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
 }
 
@@ -64,11 +64,12 @@ def get_tcp(usr, pwd):
     url = 'https://dashboard.cpolar.com/login'
 
     params = f'login={usr}&password={pwd}'  #&csrf_token='+csrf_token
-    res = session.post(url, headers=headers_login, data=params)
+    res = session.post(url, headers=headers_login_agent, data=params)
 
     if res.status_code == 200:
         status_url = 'https://dashboard.cpolar.com/status'
-        sources = requests.get(status_url, headers=headers_tcp)
+        # sources = requests.get(status_url, headers=headers_tcp)
+        sources = session.get(status_url, headers=headers_login_agent)
         e = etree.HTML(sources.text)
         item_list = e.xpath("//tr/td/text()")
         item_num = len(item_list)//4
