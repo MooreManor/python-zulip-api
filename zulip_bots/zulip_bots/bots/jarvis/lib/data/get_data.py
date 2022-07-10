@@ -13,16 +13,17 @@ def get_help(name):
     # | :--: | :--: | :--: |
     # |  aa  |  bb  |  cc  |
     commands_help = [
-        "help",
-        # "paper <url>",
+        "-h/--help",
         "<url>",
-        "server <server-id>"
+        "-p/--paper  <url>/<paper-title>",
+        "-s/--server <server-id>"
     ]
 
     max_len = 20
     params_help= [
         "**None**",
         "**<url>:** Paper homepage url from arxiv, paperswithcode, iccv, cvpr",
+        "**<url>:** Paper homepage url from arxiv, paperswithcode, iccv, cvpr; **<paper-title>:** Paper title",
         "**<server-id>:** Currently only support 0 or 1",
     ]
     # self.params_help  =[
@@ -32,20 +33,35 @@ def get_help(name):
 
     descriptions_help = [
         f"Display {name} usage",
-        "Get paper info",
+        "Get paper info with url",
+        "Get paper info with url or paper title",
         "Get server info",
     ]
     for command, param, description in zip(commands_help, params_help, descriptions_help):
         content += f"| **{command}** | {param} | {description}\n"
     return content
 
-def get_paper(url):
-    if "arxiv" in url:
-        title, authors, comment, pdf, url, code, paperswithcode = analyze_arxiv(url)
-    elif "paperswithcode" in url:
-        title, authors, comment, pdf, url, code, paperswithcode = analyze_paperswithcode(url)
-    elif "iccv" or "cvpr" in url:
-        title, authors, comment, pdf, url, code, paperswithcode = analyze_cv(url)
+def get_paper(para, type=0):
+    """
+    Get paper info
+
+    Args
+        para: url or paper_title
+        type: 0 means url; 1 means paper_title
+    Returns
+        res: paper info
+    """
+    if type==0:
+        if "arxiv" in para:
+            title, authors, comment, pdf, url, code, paperswithcode = analyze_arxiv(para)
+        elif "paperswithcode" in para:
+            title, authors, comment, pdf, url, code, paperswithcode = analyze_paperswithcode(para)
+        elif "iccv" or "cvpr" in para:
+            title, authors, comment, pdf, url, code, paperswithcode = analyze_cv(para)
+    elif type==1:
+        PWC_search_url = search_paper_name_PWC(para)
+        PWC_url = get_PWChomeUrl_with_searchUrl(PWC_search_url)
+        title, authors, comment, pdf, url, code, paperswithcode = analyze_paperswithcode(PWC_url)
         
     res = "**" + title + "**" + " " + authors + " " + comment + " " + "([PDF](" + pdf + "))" + " " + \
         "([Abstract](" + url + "))" + paperswithcode + code

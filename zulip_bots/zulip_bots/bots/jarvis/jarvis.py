@@ -18,7 +18,7 @@ class JarvisHandler:
         self.bot_handler = bot_handler
 
         self.Invalid_Command_ERROR_MESSAGE = "**Invalid Command.**\n\n"\
-               f"Please use `@**{self.name}** help` to see the correct usage."
+               f"Please use `@**{self.name}** -h` or `@**{self.name}** --help` to see the correct usage."
 
 
     #-----------------------------Generate response-----------------------------
@@ -26,13 +26,13 @@ class JarvisHandler:
         try:
             instruction = commands[0]
         except:
-            return "Please type something.\n You can use `@**{self.name}** help` to get more info."
+            return "Please type something.\n You can use `@**{self.name}** -h` or `@**{self.name}** --help` to get more info."
         # if instruction == "server":
         #     return data.get_cpolar(sender_email=self.message['sender_email'], server_id=commands[1])
         try:
             instruction = commands[0]
             # only instruction
-            if instruction == "help":
+            if instruction == "--help" or instruction == "-h":
                 content = data.get_help(self.name)
                 return content
 
@@ -45,18 +45,29 @@ class JarvisHandler:
                     "or something wrong happeded during the crawl"
             # instruction params >=1
             try:
-                if instruction == "paper":
-                    assert len(commands)==2
-                    try:
-                        return data.get_paper(commands[1])
-                    except:
-                        return "URL must from arxiv or PapersWithCode or iccv or cvpr, "\
-                      "or something wrong happeded during the crawl"
+                if instruction == "--paper" or instruction == "-p":
+                    assert len(commands)>=2
+                    param = commands[1]
+                    if "http" in param or "com" in param or "www" in param:
+                        assert len(commands)==2 
+                        try:
+                            return data.get_paper(commands[1])
+                        except:
+                            return "URL must from arxiv or PapersWithCode or iccv or cvpr, "\
+                        "or something wrong happeded during the crawl"
+
+                    else:
+                        try:
+                            title = commands[1:]
+                            title = ' '.join(title)
+                            return data.get_paper(title, type=1)
+                        except:
+                            return "Something wrong happeded during the crawl. Please check the paper title, or no paper is found in PapersWithCode."
             except:
                 return "Invalid Nums of Params for paper."
             # cpolar
             try:
-                if instruction == "server":
+                if instruction == "--server" or instruction == "-s":
                     assert len(commands)==2
                     try:
                         cmd_out_prompt = "Without ECNU VPN. Please use:\n"

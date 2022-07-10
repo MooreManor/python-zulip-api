@@ -204,6 +204,12 @@ def search_paper_name_PWC(paper_name: str):
     # 'https://paperswithcode.com/search?q_meta=&q_type=&q=FAM%3A+Visual+Explanations+for+the+Feature+Representations+From+Deep+Convolutional+Networks'
     return PWC_url
 
+def get_PWChomeUrl_with_searchUrl(PWC_search_url):
+    resp = requests.get(PWC_search_url)
+    page = BeautifulSoup(resp.text, "html.parser")
+    PWC_url = page.find('div', class_='row infinite-item item paper-card').find('div', class_='col-lg-9 item-content').find('a')['href']
+    PWC_url = 'https://paperswithcode.com' + PWC_url
+    return PWC_url
 
 def analyze_cv(url):
     resp = requests.get(url)
@@ -215,10 +221,11 @@ def analyze_cv(url):
     paper_title = page.find('meta', attrs={"name":"citation_title"})['content']
 
     PWC_search_url = search_paper_name_PWC(paper_title)
-    resp = requests.get(PWC_search_url)
-    page = BeautifulSoup(resp.text, "html.parser")
-    PWC_url = page.find('div', class_='row infinite-item item paper-card').find('div', class_='col-lg-9 item-content').find('a')['href']
-    PWC_url = 'https://paperswithcode.com' + PWC_url
+    PWC_url = get_PWChomeUrl_with_searchUrl(PWC_search_url)
+    # resp = requests.get(PWC_search_url)
+    # page = BeautifulSoup(resp.text, "html.parser")
+    # PWC_url = page.find('div', class_='row infinite-item item paper-card').find('div', class_='col-lg-9 item-content').find('a')['href']
+    # PWC_url = 'https://paperswithcode.com' + PWC_url
 
     title, authors, comment, pdf, url, code, paperswithcode = analyze_paperswithcode(PWC_url)
     return title, authors, comment, pdf, url, code, paperswithcode
