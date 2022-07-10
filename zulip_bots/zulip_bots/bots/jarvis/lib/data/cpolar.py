@@ -85,7 +85,7 @@ def get_cpolar_config(cf):
 
 if __name__ == '__main__':
     cf = configparser.ConfigParser()
-    cf.read("config.ini")
+    cf.read("/home/zqli/workspace/python/server/python-zulip-api/zulip_bots/zulip_bots/bots/jarvis/configs/config.ini")
     usr, pwd = get_cpolar_config(cf)
     tcp, ip = get_tcp(usr, pwd)
     print(tcp)
