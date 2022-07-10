@@ -66,7 +66,7 @@ def get_cpolar(sender_email, server_id):
     ]
     # cpolar ip
     ip_list=[
-        "222.66.117.28",
+        "222.66.117.23",
         "49.52.5.37",
     ]
     # server ip

@@ -6,7 +6,6 @@ This file is used to generate markdown format titles, authors, PDF links, Abstra
           python arxiv_markdown.py https://paperswithcode.com/paper/multi-scale-networks-for-3d-human
 '''
 
-
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -14,8 +13,8 @@ import pyperclip
 import sys
 import os
 
-def analyze_arxiv(url):
 
+def analyze_arxiv(url):
     resp = requests.get(url)
     page = BeautifulSoup(resp.text, "html.parser")
     sub_url = url[url.rfind('/') + 1:]
@@ -38,12 +37,11 @@ def analyze_arxiv(url):
     code = ''
     try:
         datas = res.json()['code']['all_official']
-        assert len(datas)==1
+        assert len(datas) == 1
         code = datas[0]['url']
         code = " ([Code](" + code + "))"
     except:
         pass
-
 
     paperswithcode = res.json()['data']['paper_url']
     paperswithcode = " ([PWC](" + paperswithcode + "))"
@@ -70,14 +68,14 @@ def analyze_arxiv(url):
         ss1 = ss0.find_all('a')
         num_authors = len(ss1)
         for i, ii in enumerate(ss1):
-            if(num_authors<=2 and i<2):
-                authors = authors+ii.string+', '
-            elif(num_authors>2 and i==0):
+            if (num_authors <= 2 and i < 2):
+                authors = authors + ii.string + ', '
+            elif (num_authors > 2 and i == 0):
                 authors = authors + ii.string + ', '
                 # print(ii.string)
 
     authors = authors[:-2]
-    if(num_authors > 2):
+    if (num_authors > 2):
         authors = authors + " et al."
     else:
         authors = authors + "."
@@ -91,10 +89,11 @@ def analyze_arxiv(url):
 
     pdf = "https://arxiv.org/pdf/" + url.split("/")[-1]
     return title, authors, comment, pdf, url, code, paperswithcode
+
+
 # print(title)
 
 def analyze_paperswithcode(url):
-
     resp = requests.get(url)
     paperswithcode = url
     paperswithcode = " ([PWC](" + paperswithcode + "))"
@@ -107,10 +106,10 @@ def analyze_paperswithcode(url):
     urls = []
     for i in abstract.find_all('a', class_='badge badge-light'):
         urls.append(i['href'])
-    if(len(urls) == 2):
+    if (len(urls) == 2):
         pdf = urls[0]
         url = urls[1]
-    elif(len(urls) == 4):
+    elif (len(urls) == 4):
         pdf = urls[2]
         url = urls[1]
 
@@ -118,13 +117,14 @@ def analyze_paperswithcode(url):
     title = str(title)[4:-5].lstrip().rstrip() + '.'
 
     try:
-        code = page.find('div', class_='paper-implementations code-table').find('div', class_='paper-impl-cell').find('a')
+        code = page.find('div', class_='paper-implementations code-table').find('div', class_='paper-impl-cell').find(
+            'a')
         code = re.search(r"href=\".*?\"", str(code))
         code = code.group()[6:-1]
         code = " ([Code](" + code + "))"
     except:
-        code=""
-    
+        code = ""
+
     try:
         # pub = page.find('div', class_='authors').find('span', class_='item-conference-link').find("a")
         pub = page.find('div', class_='paper-title').find('span', class_='item-conference-link').find('a')
@@ -140,12 +140,12 @@ def analyze_paperswithcode(url):
         comment = re.search(r"[^> ]* \d{4}", pub)
         # print(comment)
         # year = re.search(r"\d{4}", pub)
-        if comment!=None:
+        if comment != None:
             comment = "**" + comment.group() + "**"
         else:
             comment = ""
     except:
-        comment=""
+        comment = ""
     # print(comment.group())
     # print(year.group())
 
@@ -153,7 +153,7 @@ def analyze_paperswithcode(url):
     num_authors = 0
     ss1 = [i.find_all('a') for i in page.find_all(class_="author-span")]
     # print(ss1)
-    if len(ss1[0])==0:
+    if len(ss1[0]) == 0:
         ss1.pop(0)
         comment = re.search(r">.*?<", str(page.find(class_="author-span"))).group()[1:-1]
         comment = "**" + comment + "**"
@@ -170,7 +170,40 @@ def analyze_paperswithcode(url):
         authors = authors + "."
 
     return title, authors, comment, pdf, url, code, paperswithcode
+
+def replace_title_spec(paper_name: str):
+    spec_word_dict = {
+        "%": "%25",
+        "+": "%2B",
+        ":": "%3A",
+        "?": "%3F",
+        " ": "+",
+        "&": "%26",
+        "(": "%28",
+        ")": "%29",
+        "@": "%40",
+        "#": "%23",
+        "!": "%21",
+    }
+    idx = 0
+    while idx != len(paper_name):
+        cur_char = paper_name[idx]
+        if cur_char.isalpha() or cur_char.isdigit():
+            idx += 1
+            continue
+        else:
+            paper_name = paper_name[:idx] + spec_word_dict[cur_char] + paper_name[idx+1:]
+            idx += len(spec_word_dict[cur_char])
+    return paper_name
+
+
 # print(pdf)
+def search_paper_name_PWC(paper_name: str):
+    paper_name = replace_title_spec(paper_name)
+    PWC_url = "https://paperswithcode.com/search?q_meta=&q_type=&q=" + paper_name
+    # 'https://paperswithcode.com/search?q_meta=&q_type=&q=FAM%3A+Visual+Explanations+for+the+Feature+Representations+From+Deep+Convolutional+Networks'
+    return PWC_url
+
 
 def analyze_cv(url):
     resp = requests.get(url)
@@ -179,6 +212,16 @@ def analyze_cv(url):
         if "arxiv" in str(ss0):
             title, authors, comment, pdf, url, code, paperswithcode = analyze_arxiv((ss0['href']))
             return title, authors, comment, pdf, url, code, paperswithcode
+    paper_title = page.find('meta', attrs={"name":"citation_title"})['content']
+
+    PWC_search_url = search_paper_name_PWC(paper_title)
+    resp = requests.get(PWC_search_url)
+    page = BeautifulSoup(resp.text, "html.parser")
+    PWC_url = page.find('div', class_='row infinite-item item paper-card').find('div', class_='col-lg-9 item-content').find('a')['href']
+    PWC_url = 'https://paperswithcode.com' + PWC_url
+
+    title, authors, comment, pdf, url, code, paperswithcode = analyze_paperswithcode(PWC_url)
+    return title, authors, comment, pdf, url, code, paperswithcode
 
 
 
@@ -191,9 +234,10 @@ def get_newest_pdf(path):
                 # print(os.path.join(root, file))
                 list_pdf.append(os.path.join(root, file).replace('\\', '/'))
     # print(list)
-    list_pdf.sort(key=lambda fn:os.path.getmtime(fn))  # 按时间排序
-    file_new = os.path.join(path,list_pdf[-1]) # 获取最新的文件保存到file_new
+    list_pdf.sort(key=lambda fn: os.path.getmtime(fn))  # 按时间排序
+    file_new = os.path.join(path, list_pdf[-1])  # 获取最新的文件保存到file_new
     return file_new
+
 
 def get_specify_pdf(path, pdf_name):
     list_pdf = []
@@ -204,24 +248,28 @@ def get_specify_pdf(path, pdf_name):
                 return (os.path.join(root, file).replace('\\', '/'))
     raise FileNotFoundError
 
+# replace_title_spec("TEST:%%+ ok?")
 if __name__ == '__main__':
     # url = "https://arxiv.org/abs/2105.02465"
     # url = "https://arxiv.org/abs/2109.03462"
 
     path = 'D:/阅读论文'
-    url = "https://paperswithcode.com/paper/multi-scale-networks-for-3d-human"
+    # url = "https://paperswithcode.com/paper/multi-scale-networks-for-3d-human"
+    url = "https://openaccess.thecvf.com/content/CVPR2022/html/Wu_FAM_Visual_Explanations_for_the_Feature_Representations_From_Deep_Convolutional_CVPR_2022_paper.html"
     # url = "https://paperswithcode.com/paper/poseaug-a-differentiable-pose-augmentation"
     # if (len(sys.argv) == 2):
     #     url = sys.argv[1]
 
     import argparse
+
     parser = argparse.ArgumentParser(description='Url, local path')
     parser.add_argument("-u", "--url", help="website of paper")
-    parser.add_argument("-n", "--not_local", action="store_true",help="whether to generate local path to the pdf")
+    parser.add_argument("-n", "--not_local", action="store_true", help="whether to generate local path to the pdf")
     parser.add_argument("-p", "--path", help="the directory of papers stored")
     args = parser.parse_args()
 
     import time
+
     test_time = time.time()
     if args.url:
         url = args.url
@@ -232,7 +280,7 @@ if __name__ == '__main__':
         pdf_path = " " + "([Local](" + pdf_path + "))"
     else:
         pdf_path = ''
-    assert (time.time()-test_time)<3, 'Sorting time too long! Please change a smaller local directory!'
+    assert (time.time() - test_time) < 3, 'Sorting time too long! Please change a smaller local directory!'
 
     if "arxiv" in url:
         title, authors, comment, pdf, url, code, paperswithcode = analyze_arxiv(url)
@@ -243,11 +291,11 @@ if __name__ == '__main__':
 
     res = "<mark>" + "**" + title + "**" + " " + authors + " " + comment + " " + "([PDF](" + pdf + "))" + " " + \
           "([Abstract](" + url + "))" + paperswithcode + code + pdf_path + "</mark>" + "\n<details>\n" + \
-            "   <summary>Contents</summary>\n" + \
-            "   <ul>\n" + \
-            "	    <li></li>\n" + \
-            "   </ul>\n" + \
-            "</details>"
+          "   <summary>Contents</summary>\n" + \
+          "   <ul>\n" + \
+          "	    <li></li>\n" + \
+          "   </ul>\n" + \
+          "</details>"
     print(res)
 
     pyperclip.copy(res)

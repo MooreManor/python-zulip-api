@@ -12,18 +12,21 @@ class JarvisHandler:
     def usage(self) -> str:
         return
         "Jarvis Robot"
-    
+
     def initialize(self, bot_handler: BotHandler) -> None:
         self.name = "Jarvis-Bot"
         self.bot_handler = bot_handler
 
         self.Invalid_Command_ERROR_MESSAGE = "**Invalid Command.**\n\n"\
-               f"Please use `@**{self.name}** help` to see the correct usage."  
+               f"Please use `@**{self.name}** help` to see the correct usage."
 
 
-    #-----------------------------Generate response----------------------------- 
+    #-----------------------------Generate response-----------------------------
     def generate_response(self, commands) -> str:
-        instruction = commands[0]
+        try:
+            instruction = commands[0]
+        except:
+            return "Please type something.\n You can use `@**{self.name}** help` to get more info."
         # if instruction == "server":
         #     return data.get_cpolar(sender_email=self.message['sender_email'], server_id=commands[1])
         try:
@@ -39,7 +42,7 @@ class JarvisHandler:
                     return data.get_paper(commands[0])
                 except:
                     return "URL must from arxiv or PapersWithCode or iccv or cvpr, "\
-                    "or something wrong happeded during the crawl" 
+                    "or something wrong happeded during the crawl"
             # instruction params >=1
             try:
                 if instruction == "paper":
@@ -48,7 +51,7 @@ class JarvisHandler:
                         return data.get_paper(commands[1])
                     except:
                         return "URL must from arxiv or PapersWithCode or iccv or cvpr, "\
-                      "or something wrong happeded during the crawl" 
+                      "or something wrong happeded during the crawl"
             except:
                 return "Invalid Nums of Params for paper."
             # cpolar
@@ -62,35 +65,35 @@ class JarvisHandler:
                         return cmd_out_prompt + f"`{cmd_out}`\n\n" + cmd_vpn_prompt + f"`{cmd_vpn}`\n"
                     except:
                         return "server_id currently is 0, 1. \
-                        Please choose right server_id or something wrong happened." 
+                        Please choose right server_id or something wrong happened."
             except:
                 return "Invalid Nums of Params for server."
-                
+
 
         except:
             return  self.Invalid_Command_ERROR_MESSAGE
 
         return  self.Invalid_Command_ERROR_MESSAGE
 
-        
 
 
-    #-----------------------------Handle Message----------------------------- 
+
+    #-----------------------------Handle Message-----------------------------
     def handle_message(self, message: Dict[str, Any], bot_handler: BotHandler) -> None:
         # self.bot_handler = bot_handler
         self.message = message
         # print(message["content"])
-        # print(message)
+        print(message)
         try:
             commands = utils.sep_cont(self.message["content"])
         except:
-            content = self.Invalid_Command_ERROR_MESSAGE           
+            content = self.Invalid_Command_ERROR_MESSAGE
             bot_handler.send_reply(message, content)
             return
-        
+
         content = self.generate_response(commands)
         bot_handler.send_reply(message, content)
-    
+
         return
 
 
