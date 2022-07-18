@@ -15,7 +15,7 @@ def get_help(name):
     commands_help = [
         "-h/--help",
         "<url>",
-        "-p/--paper  <url>/<paper-title>",
+        "-p/--paper <url>/<paper-title>",
         "-s/--server <server-id>"
     ]
 

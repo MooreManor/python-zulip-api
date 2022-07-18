@@ -13,8 +13,14 @@ import pyperclip
 import sys
 import os
 
+def pdf2abs(url):
+    url = url.replace('/papers', '/html')
+    url = url.replace('.pdf', '.html')
+    url = url.replace('/pdf', '/abs')
+    return url
 
 def analyze_arxiv(url):
+    url = pdf2abs(url)
     resp = requests.get(url)
     page = BeautifulSoup(resp.text, "html.parser")
     sub_url = url[url.rfind('/') + 1:]
@@ -212,6 +218,7 @@ def get_PWChomeUrl_with_searchUrl(PWC_search_url):
     return PWC_url
 
 def analyze_cv(url):
+    url = pdf2abs(url)
     resp = requests.get(url)
     page = BeautifulSoup(resp.text, "html.parser")
     for ss0 in page.find_all('a'):
