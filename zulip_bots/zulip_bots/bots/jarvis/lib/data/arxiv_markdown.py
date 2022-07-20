@@ -194,7 +194,7 @@ def replace_title_spec(paper_name: str):
     idx = 0
     while idx != len(paper_name):
         cur_char = paper_name[idx]
-        if cur_char.isalpha() or cur_char.isdigit():
+        if cur_char.isalpha() or cur_char.isdigit() or cur_char=='-':
             idx += 1
             continue
         else:
@@ -269,7 +269,8 @@ if __name__ == '__main__':
 
     path = 'D:/阅读论文'
     # url = "https://paperswithcode.com/paper/multi-scale-networks-for-3d-human"
-    url = "https://openaccess.thecvf.com/content/CVPR2022/html/Wu_FAM_Visual_Explanations_for_the_Feature_Representations_From_Deep_Convolutional_CVPR_2022_paper.html"
+    url = "https://openaccess.thecvf.com/content/CVPR2022/papers/Zhang_Spiking_Transformers_for_Event-Based_Single_Object_Tracking_CVPR_2022_paper.pdf"
+    # url = pdf2abs(url)
     # url = "https://paperswithcode.com/paper/poseaug-a-differentiable-pose-augmentation"
     # if (len(sys.argv) == 2):
     #     url = sys.argv[1]
