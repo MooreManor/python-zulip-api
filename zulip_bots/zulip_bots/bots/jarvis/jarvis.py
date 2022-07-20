@@ -35,6 +35,10 @@ class JarvisHandler:
             if instruction == "--help" or instruction == "-h":
                 content = data.get_help(self.name)
                 return content
+            
+            if instruction == "--examples" or instruction == "-e":
+                content = data.get_examples(self.name)
+                return content
 
             if "http" in instruction or "com" in instruction or "www" in instruction:
                 assert len(commands)==1
@@ -79,6 +83,10 @@ class JarvisHandler:
                         Please choose right server_id or something wrong happened."
             except:
                 return "Invalid Nums of Params for server."
+
+
+            # if instruction == "--test":
+            #     return "https://github.com/MooreManor/Image/blob/main/img/zulip/jarvisBot-help.png"
 
 
         except:

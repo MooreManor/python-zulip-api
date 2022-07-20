@@ -14,6 +14,7 @@ def get_help(name):
     # |  aa  |  bb  |  cc  |
     commands_help = [
         "-h/--help",
+        "-e/--examples",
         "<url>",
         "-p/--paper <url>/<paper-title>",
         "-s/--server <server-id>"
@@ -21,6 +22,7 @@ def get_help(name):
 
     max_len = 20
     params_help= [
+        "**None**",
         "**None**",
         "**<url>:** Paper homepage url from arxiv, paperswithcode, iccv, cvpr",
         "**<url>:** Paper homepage url from arxiv, paperswithcode, iccv, cvpr; **<paper-title>:** Paper title",
@@ -33,6 +35,7 @@ def get_help(name):
 
     descriptions_help = [
         f"Display {name} usage",
+        f"Display {name} examples",
         "Get paper info with url",
         "Get paper info with url or paper title",
         "Get server info",
@@ -40,6 +43,20 @@ def get_help(name):
     for command, param, description in zip(commands_help, params_help, descriptions_help):
         content += f"| **{command}** | {param} | {description}\n"
     return content
+
+def get_examples(name):
+    content = "**Here are some examples about how to use Jarvis Bot.**\n"
+    pic_url = [
+        "https://github.com/MooreManor/Image/blob/main/img/zulip/jarvisBot-help.png",
+        "https://github.com/MooreManor/Image/blob/main/img/zulip/jarvisBot-paper.png",
+        "https://github.com/MooreManor/Image/blob/main/img/zulip/jarvisBot-server.png",
+    ]
+    content += f"You can get access to Jarvis Bot by creating a private chat with the bot or use `@**{name}**` in the channel.\n"
+    content += f"## Instrcutions\nYou can get the instruction book through `@**{name}** --help`.\n\n{pic_url[0]}\n"
+    content += f'## Get paper info\nYou can get a quick info through typing in paper homepage url from arxiv, paperswithcode, iccv and cvpr, or paper name.\n\n{pic_url[1]}\n'
+    content += f'## Get VPX server info\nGet server info.\n\n{pic_url[2]}\n'
+    return content
+
 
 def get_paper(para, type=0):
     """
@@ -80,10 +97,10 @@ def get_cpolar(sender_email, server_id):
         "xyyang",
         "dblu",
     ]
-    # cpolar ip
+    # cpolar ip, the last part will change so match the first three 
     ip_list=[
-        "222.66.117.23",
-        "49.52.5.37",
+        "222.66.117",
+        "49.52.5",
     ]
     # server ip
     vpn_list=[
@@ -106,7 +123,11 @@ def get_cpolar(sender_email, server_id):
         usr_name = "<usr_name>"
 
     try:
-        server_chosen_id = ip.index(ip_list[int(server_id)])
+        # server_chosen_id = ip.index(ip_list[int(server_id)])
+        for i, cr_ip in enumerate(ip):
+            if ip_list[int(server_id)] in cr_ip:
+                server_chosen_id = i
+                break
         server_chosen_tcp = tcp[server_chosen_id]
         cmd_out = f'ssh {usr_name}@1.tcp.cpolar.cn -p {server_chosen_tcp[-5:]}'
     except:
